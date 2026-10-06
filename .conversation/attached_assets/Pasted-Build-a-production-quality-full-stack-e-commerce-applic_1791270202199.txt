@@ -1,0 +1,198 @@
+Build a production-quality full-stack e-commerce application called **Smart Product Recommendation System**.
+
+### Goal
+
+Create a modern online store where users can register, browse/search/filter products, purchase products, manage cart/wishlist, review products, and receive personalized recommendations based on their behavior. Build both:
+
+1. Customer E-commerce Platform
+2. Admin Dashboard
+
+### Tech Stack
+
+* Frontend: React + Vite + Tailwind CSS + React Router + Axios + Lucide
+* Backend: Node.js + Express.js REST API
+* Database: PostgreSQL + Prisma
+* Auth: JWT + bcrypt
+* Charts: Recharts
+* Roles: CUSTOMER and ADMIN
+
+### Customer Features
+
+Implement:
+
+* Register/Login/Logout
+* Profile and preferences
+* Product catalog with categories
+* Search, filters and sorting
+* Product details and similar products
+* Cart and Wishlist
+* Checkout with COD + mock online payment
+* Orders and order history
+* Product ratings/reviews
+* Personalized home/dashboard
+* Recently viewed, trending, best sellers and recommended products
+
+### Recommendation System
+
+This is the main feature.
+
+Track:
+
+* Product views/clicks
+* Searches
+* Category visits
+* Wishlist
+* Cart additions/removals
+* Purchases
+* Ratings
+* Product-page time
+
+Create a `BehaviorEvent` table.
+
+Use a **hybrid recommendation system**:
+
+1. **Content-based** — category, brand, price and product attributes.
+2. **Collaborative filtering** — recommend products based on similar users/products.
+3. **Popularity-based** — trending, best-selling and highly-rated products for new users.
+
+Behavior weights:
+`VIEW=1, CLICK=2, WISHLIST=4, ADD_TO_CART=6, RATING=8, PURCHASE=10`
+
+Recommendation score:
+`Behavior Score + Category Similarity + Product Similarity + Popularity + Rating`
+
+Provide recommendation reasons such as:
+
+* "Based on your recent interests"
+* "Popular with customers like you"
+* "Frequently bought with this product"
+
+APIs:
+
+* `/api/recommendations/user/:userId`
+* `/api/recommendations/similar/:productId`
+* `/api/recommendations/trending`
+* `/api/recommendations/frequently-bought/:productId`
+
+### Database
+
+Create Prisma models for:
+`User, Product, Category, Cart, CartItem, Wishlist, Order, OrderItem, Review, BehaviorEvent, Recommendation, RecommendationEvent`
+
+Use proper relationships, foreign keys, indexes and unique constraints.
+
+### API
+
+Create REST APIs for:
+`auth, users, products, categories, cart, wishlist, orders, reviews, recommendations, admin`
+
+Keep business logic in controllers/services, not directly inside routes.
+
+### Admin Dashboard
+
+Create a professional dashboard showing:
+
+* Users
+* Products
+* Orders
+* Revenue
+* Average order value
+* Sales charts
+* Top products/categories
+* Customer activity
+* Recommendation impressions, clicks, CTR, conversions and revenue
+
+Admin should manage products, categories, inventory, orders, customers, reviews and recommendations.
+
+### UI/UX
+
+Create a modern, responsive, portfolio-quality design for mobile, tablet and desktop.
+
+Include:
+
+* Professional navbar and footer
+* Hero section
+* Product cards
+* Featured/trending/new/best-selling products
+* Recommended For You
+* Loading skeletons
+* Toast notifications
+* Empty/error states
+* Smooth hover effects
+
+### Security
+
+Implement:
+
+* JWT authentication
+* bcrypt password hashing
+* Protected routes
+* Role-based authorization
+* Input validation/sanitization
+* Secure environment variables
+* Proper error handling
+
+Create `.env.example` with:
+`DATABASE_URL`, `JWT_SECRET`, `PORT`
+
+### Seed Data
+
+Create realistic demo data:
+
+* 1 admin
+* 10–20 customers
+* 8+ categories
+* 50+ products
+* Reviews and behavior events
+* Purchases and recommendation data
+
+Use development demo accounts only:
+`admin@example.com / Admin@123`
+`customer@example.com / Customer@123`
+
+### Project Structure
+
+Use a clean structure:
+
+`client/src/components`
+`client/src/pages`
+`client/src/services`
+`client/src/hooks`
+`client/src/context`
+
+`server/controllers`
+`server/routes`
+`server/services`
+`server/middleware`
+`server/prisma`
+
+Create services such as:
+`recommendationService`, `productService`, `orderService`.
+
+### Development Order
+
+Build in this order:
+
+1. Setup
+2. Database/Prisma
+3. Authentication
+4. Products/Categories
+5. Catalog UI
+6. Product details
+7. Cart/Wishlist
+8. Checkout/Orders
+9. Reviews
+10. Behavior tracking
+11. Recommendation engine
+12. Personalized dashboard
+13. Admin dashboard
+14. Analytics
+15. Testing and final UI polish
+
+After every major phase, run the application, fix errors and verify existing features.
+
+### Final Requirement
+
+Do **not** create a frontend-only mockup. Build a real working full-stack application with PostgreSQL persistence, REST APIs, authentication, behavior tracking and a functional hybrid recommendation engine.
+
+Make it **scalable, secure, responsive and portfolio-quality**.

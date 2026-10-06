@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Smart Product Recommendations"
+description = "A full-stack online store with customer accounts, product discovery, checkout, reviews, a management dashboard, and personalized product recommendations based on customer behavior."
+version = "1.0.0"
+id = "artifacts/smart-product-store"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19045
+
+[services.development]
+run = "pnpm --filter @workspace/smart-product-store run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/smart-product-store", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/smart-product-store/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19045"
+BASE_PATH = "/"

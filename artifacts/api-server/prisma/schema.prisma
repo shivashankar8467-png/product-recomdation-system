@@ -1,0 +1,262 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PLACED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  MOCK_ONLINE
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum BehaviorType {
+  VIEW
+  CLICK
+  SEARCH
+  CATEGORY_VISIT
+  WISHLIST
+  ADD_TO_CART
+  REMOVE_FROM_CART
+  PURCHASE
+  RATING
+  PAGE_TIME
+}
+
+enum RecommendationEventType {
+  IMPRESSION
+  CLICK
+  ADD_TO_CART
+  PURCHASE
+}
+
+model User {
+  id             String          @id @default(cuid())
+  email          String          @unique
+  passwordHash   String
+  name           String
+  role           UserRole        @default(CUSTOMER)
+  preferences    String[]        @default([])
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  cart           Cart?
+  wishlist       Wishlist[]
+  orders         Order[]
+  reviews        Review[]
+  behaviorEvents BehaviorEvent[]
+  recommendations Recommendation[]
+  recommendationEvents RecommendationEvent[]
+
+  @@index([role])
+  @@index([createdAt])
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
+  description String?
+  image       String?
+  createdAt   DateTime   @default(now())
+  products    Product[]
+  behaviorEvents BehaviorEvent[]
+
+  @@index([name])
+}
+
+model Product {
+  id            String          @id @default(cuid())
+  name          String
+  slug          String          @unique
+  description   String
+  brand         String
+  price         Float
+  compareAtPrice Float?
+  categoryId    String
+  category      Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  image         String
+  images        String[]        @default([])
+  inventory     Int             @default(0)
+  rating        Float           @default(0)
+  reviewCount   Int             @default(0)
+  soldCount     Int             @default(0)
+  featured      Boolean         @default(false)
+  attributes    Json            @default("{}")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  cartItems     CartItem[]
+  wishlists     Wishlist[]
+  orderItems    OrderItem[]
+  reviews       Review[]
+  behaviorEvents BehaviorEvent[]
+  recommendations Recommendation[]
+  recommendationEvents RecommendationEvent[]
+
+  @@index([categoryId])
+  @@index([brand])
+  @@index([price])
+  @@index([featured, createdAt])
+  @@index([soldCount])
+  @@index([rating])
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, productId])
+  @@index([productId])
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([productId])
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  status          OrderStatus   @default(PLACED)
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus @default(PENDING)
+  total           Float
+  shippingName    String
+  shippingPhone   String
+  shippingAddress String
+  shippingCity    String
+  shippingPostalCode String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  items           OrderItem[]
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName String
+  image       String
+  quantity    Int
+  unitPrice   Float
+
+  @@index([productId])
+  @@index([orderId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, userId])
+  @@index([productId, createdAt])
+}
+
+model BehaviorEvent {
+  id         String        @id @default(cuid())
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       BehaviorType
+  productId  String?
+  product    Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+  categoryId String?
+  category   Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  searchQuery String?
+  durationMs Int?
+  createdAt  DateTime      @default(now())
+
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+  @@index([productId, createdAt])
+  @@index([categoryId, createdAt])
+}
+
+model Recommendation {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  score     Float
+  reason    String
+  algorithm String   @default("HYBRID")
+  updatedAt DateTime @updatedAt
+  events    RecommendationEvent[]
+
+  @@unique([userId, productId])
+  @@index([userId, score])
+  @@index([productId])
+}
+
+model RecommendationEvent {
+  id               String                  @id @default(cuid())
+  userId           String?
+  user             User?                   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  recommendationId String?
+  recommendation   Recommendation?         @relation(fields: [recommendationId], references: [id], onDelete: SetNull)
+  productId        String
+  product          Product                 @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type             RecommendationEventType
+  revenue          Float                    @default(0)
+  createdAt        DateTime                @default(now())
+
+  @@index([type, createdAt])
+  @@index([userId, createdAt])
+  @@index([recommendationId])
+}
